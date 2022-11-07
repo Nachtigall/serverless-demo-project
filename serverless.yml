@@ -1,0 +1,113 @@
+service: demo-api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  stage: dev
+  timeout: 15
+  memorySize: 2048
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}-handlers-data-table
+    S3_BUCKET: ${self:service}-${opt:stage, self:provider.stage}-profile-images
+  ecr:
+    images:
+      appimage:
+        path: ./
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:PutObjectAcl
+          Resource: "arn:aws:s3:::${self:provider.environment.S3_BUCKET}/*"
+custom:
+  pythonRequirements:
+    layer: true
+  dynamodb:
+    stages:
+      - local
+    start:
+      migrate: true
+  wsgi:
+    app: app/app.app
+  s3:
+    host: localhost
+    directory: /tmp
+    bucketName: ${self:provider.environment.S3_BUCKET}
+    stages:
+      - local
+
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-wsgi
+  - serverless-offline
+  - serverless-python-requirements
+  - serverless-s3-local
+functions:
+  app:
+    image:
+      name: appimage
+    events:
+      - httpApi:
+          path: /scrape
+          method: post
+      - httpApi:
+          path: /users
+          method: get
+      - httpApi:
+          path: /user/{handle}/profile_pic
+          method: get
+
+resources:
+  Resources:
+    DemoApiDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: handle
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: handle
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+    ProfileImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET}
+        VersioningConfiguration:
+          Status: Enabled
+    ProfileImagesBucketAllowPublicReadPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref ProfileImagesBucket
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Action:
+                - "s3:GetObject"
+              Resource:
+                - !Join [ '/', [ !Ref ProfileImagesBucket, 'public' ] ]
+              Principal: "*"
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!.dynamodb/**'
+    - '!.serverless/**'
