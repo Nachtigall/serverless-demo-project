@@ -28,8 +28,9 @@ A paginated endpoint will return information about all handles (3 items in one r
 
 
 #### Python dependencies:
-put project requirements in Pipfile via pipenv. With old-style requirements.txt it's quite hard to manage all dependencies. Better solutions for that to have something like Pipenv, Poetry, etc.
-just run pipenv shell and you will get proper virtual env instead of installing all libs locally.
+Moved project requirements in `Pipfile` via `pipenv`. With old-style `requirements.txt` it's quite hard to manage all dependencies. Better solutions for that to have something like `Pipenv`, `Poetry`, etc.
+
+To spin up local env - just run `pipenv shell` instead of installing all libs locally.
 
 #### Local development:
 - `sls s3 start --stage local`
@@ -37,7 +38,7 @@ just run pipenv shell and you will get proper virtual env instead of installing 
 - `sls wsgi serve -p 8001 --stage local`
 
 #### Dev experience:
-added `black` and `isort` libraries to keep sorting and code always in the same style. Also, as an option could be to add `mypy` to enforce type hints.
+Added `black` and `isort` libraries to keep sorting and code always in the same style. Also, as an option could be to add `mypy` to enforce type hints.
 
 #### Storage system:
 As a storage system was used `DynamoDB` (handle - s3_url as key - value)+ `S3 bucket` (as image storage). There are no relations between handles, so, there is no reason to choose something more complex like RDS or so.
