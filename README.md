@@ -6,7 +6,7 @@ In this repo, you can find my approach solving tech task.
 
 ### General thoughts:
 
-The biggest issue was not with the serverless logic, but rather with Twitter itself. Since the usage of third party libs was forbidden - I had to scrape Twitter by myself. Turned out, that page has a bunch of javascript, which is not possible to scrape via standard python libs like requests or so. My approach was to use selenium and chrome browser to wait until the page is fully loaded. Here, I got into another issue - AWS Lambda allows only headless browsers, however, Twitter doesn't like that, since it's not a supported browser.
+The biggest issue was not with the serverless logic, but rather with Twitter itself. Since the usage of third party libs was forbidden - I had to scrape Twitter by myself. Turned out, that page has a bunch of javascript, which is not possible to scrape via standard python libs like requests or so. My approach was to use `selenium` and chrome browser to wait until the page is fully loaded. Here, I got into another issue - AWS Lambda allows only headless browsers, however, Twitter doesn't like that, since it's not a supported browser.
 
 So, taking into account all of this my solution is to use selenium with a headless browser, which in a hacky way pretends to be a "normal" browser.
 
@@ -41,7 +41,7 @@ To spin up local env - just run `pipenv shell` instead of installing all libs lo
 Added `black` and `isort` libraries to keep sorting and code always in the same style. Also, as an option could be to add `mypy` to enforce type hints.
 
 #### Storage system:
-As a storage system was used `DynamoDB` (handle - s3_url as key - value)+ `S3 bucket` (as image storage). There are no relations between handles, so, there is no reason to choose something more complex like RDS or so.
+As a storage system was used `DynamoDB` (`handle: s3_url` as `key: value` storage)+ `S3 bucket` (as image storage). There are no relations between handles, so, there is no reason to choose something more complex like RDS or so.
 
 #### Future enhancements:
 - speed up selenium logic. Maybe there is a way to omit this framework - need to research
