@@ -45,6 +45,7 @@ As a storage system was used `DynamoDB` (`handle: s3_url` as `key: value` storag
 
 #### Future enhancements:
 - speed up selenium logic. Maybe there is a way to omit this framework - need to research
+- tests (working on this ATM)
 - user authorization (with user authorization we can build a system to serve only own data)
 - logging system
 - ENVs proper management (now it's just simply structured with no smart logic at all)
